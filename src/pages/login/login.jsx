@@ -39,6 +39,7 @@ class Login extends Component{
                         }}
                         onFinish={this.onFinish}
                         >
+                            {/* 声明式校验 */}
                         <Item
                             name="username"
                             rules={[
@@ -50,6 +51,7 @@ class Login extends Component{
                         >
                             <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="用户名" />
                         </Item>
+                        {/* 密码是自定义校验 */}
                         <Item
                             name="password"
                             rules={[
