@@ -18,9 +18,9 @@
     "react-scripts": "3.4.0"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
+    "start": "react-scripts eject",
+    "build": "react-scripts eject",
+    "test": "react-scripts eject",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
