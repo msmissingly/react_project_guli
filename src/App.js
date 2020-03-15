@@ -18,7 +18,7 @@ class App extends Component{
         this.setState({count})
 
     }
-    incrementIfOdd=()=>{
+    incrementIfOdd=()=>
         let {value} = this.refs.selectNode
         let {count} = this.state
         if(count%2===1){
