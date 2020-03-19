@@ -23,7 +23,7 @@ class Login extends Component{
       if(status===0){
           message.success('登录成功',1)
           this.props.save(data)
-          this.props.history.replace('/admin')
+        //   this.props.history.replace('/admin')
       }else{
           message.warning(msg,1)
       }

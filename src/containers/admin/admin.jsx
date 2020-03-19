@@ -3,7 +3,17 @@ import {connect} from 'react-redux'
 import { Layout } from 'antd';
 import './css/admin.less'
 import Header from '../header/header'
-import {Redirect} from 'react-router-dom'
+import LeftNav from '../left-nav/left-nav'
+import Home from '../home/home'
+import Category from '../category/category'
+import Product from '../product/product'
+import User from '../user/user'
+import Role from '../role/role'
+import Bar from '../bar/bar'
+import Line from '../line/line'
+import Pie from '../pie/pie'
+import {Redirect,Switch,Route} from 'react-router-dom'
+
 import { createDeleteUserAction } from '../../redux/actions/login';
 
 
@@ -16,11 +26,27 @@ class Admin extends Component{
         if(!this.props.isLogin) return <Redirect to='/login'/>
         return(
             <Layout className='admin-root'>
-                <Sider className='admin-sider'>Sider</Sider>
+                <Sider className='admin-sider'>
+                    <LeftNav />
+                </Sider>
                 <Layout>
                     <Header />
-                    <Content>Content</Content>
-                    <Footer>Footer</Footer>
+                    <Content className='admin-content'>
+                        <Switch>
+                            <Route path='/admin/home' component={Home}/>
+                            <Route path='/admin/prod_about/category' component={Category}/>
+                            <Route path='/admin/prod_about/product' component={Product}/>
+                            <Route path='/admin/user' component={User}/>
+                            <Route path='/admin/role' component={Role}/>
+                            <Route path='/admin/charts/line' component={Line}/>
+                            <Route path='/admin/charts/bar' component={Bar}/>
+                            <Route path='/admin/charts/pie' component={Pie}/>
+                            <Redirect to='/admin/home'/>
+                        </Switch>
+                    </Content>
+                    <Footer className='foot-text'>
+                        <span>推荐使用谷歌浏览器，获取最佳用户体验</span>
+                    </Footer>
                 </Layout>
             </Layout>
         

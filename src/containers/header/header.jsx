@@ -11,18 +11,19 @@ import dayjs from 'dayjs'
 import {createDeleteUserAction} from '../../redux/actions/login'
 import {reqWeather} from '../../ajax/index'
 import './css/header.less'
+import { createSaveTitleAction } from '../../redux/actions/header';
 
 const {confirm} =Modal
 
 class Header extends Component{
      state={
          isFull:false,
-         date:dayjs().format(),
-         weatherInfo:{
-             dayPictureUrl:'',
-             temperature:'',
-             weather:''
-         }
+         date:dayjs().format('YYYY年 MM月 DD日 HH:mm:ss'),
+         dayPictureUrl:'',
+         temperature:'',
+         weather:''
+            
+         
      }
 
      fullScreen=()=>{
@@ -38,8 +39,10 @@ class Header extends Component{
              cancelText:'取消',
              onOk:()=> { //确认按钮的回调
                  this.props.logout()
+                 this.props.deleteTitle('')
              },
          })
+         
      }
      getWeather= async ()=>{
         let result =await reqWeather()//promise对象
@@ -74,12 +77,12 @@ class Header extends Component{
                 </div>
                 <div className='header-bottom'>
                     <div className='bottom-left'>
-                        <h1>首页</h1>
+                        <h1>{this.props.title}</h1>
                     </div>
                     <div className='bottom-right'>
                         <span>{date}</span>
                         <img src={dayPictureUrl} alt="pic"/>
-        <span>{weather}，温度:{temperature}</span>
+                        <span>{weather}，温度:{temperature}</span>
                     </div>
                 </div>
             </div>
@@ -87,8 +90,9 @@ class Header extends Component{
     }
 }
 export default connect(
- (state)=>({username:state.userInfo.user.username}),
+ (state)=>({username:state.userInfo.user.username,title:state.title}),
  {
-    logout:createDeleteUserAction
+    logout:createDeleteUserAction,
+    deleteTitle:createSaveTitleAction
  }
 )(Header)

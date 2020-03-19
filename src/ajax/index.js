@@ -19,3 +19,4 @@ export const reqWeather = ()=>{
         })
     })
 }
+export const reqCategoryList = ()=>myAxios.get('/manage/category/list')
