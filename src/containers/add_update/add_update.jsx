@@ -1,25 +1,68 @@
 import React, { Component } from 'react'
-import {Card,Button,Form,Input,Select} from 'antd'
+import {Card,Button,Form,Input,Select, message} from 'antd'
 import {connect} from 'react-redux'
 import {ArrowLeftOutlined} from '@ant-design/icons'
+import {reqAddProduct,reqProductInfoById,reqUpdateProduct} from '../../ajax/index'
 import {createSaveCategoryAsyncAction} from '../../redux/actions/category'
 import PicturesWall from './picture-wall'
+import RichText from './rich-text'
 
 
 const {Item} = Form
 const {Option} = Select
 class AddUpdate extends Component {
-    onFinish=(values)=>{
-        console.log(values)
+    state={
+        isUpdate:false,
+        _id:''
+    }
+
+
+    onFinish=async(values)=>{
+        values.imgs = this.refs.pictureWall.getImgNames()
+        values.detail = this.refs.richText.getRichText()
+        let result
+        if(this.state.isUpdate){
+            values._id = this.state._id
+            result = await reqUpdateProduct(values)
+        }else{
+            
+            result  = await reqAddProduct(values)
+        }
+        const {status,msg} = result
+        if(status===0){
+            message.success(this.state.isUpdate?'修改商品成功！':'新增商品成功！')
+            this.props.history.replace('/admin/prod_about/product')
+        }else{
+            message.error(msg)
+        }
     }
     createOption=()=>{
         return this.props.categoryList.map((categoryObj)=>{
             return <Option key={categoryObj._id} value={categoryObj._id}>{categoryObj.name}</Option>
         })
     }
+
+    getProductInfoById=async(id)=>{
+        let result = await reqProductInfoById(id)
+        const {status,data,msg} = result
+        if(status===0){
+            this.refs.form.setFieldsValue(data)//回显表单基本数据
+            this.refs.pictureWall.setImgs(data.imgs)//回显表单图片数据
+            this.refs.richText.setRichText(data.detail)//回显表单富文本数据
+        }else{
+            message.error(msg)
+        }
+    }
+
     componentDidMount(){
+        const {id} = this.props.match.params
         if(!this.props.categoryList.length){
             this.props.saveCategoryList()
+        }
+        if(id) {
+            //有id就是修改页面
+            this.setState({isUpdate:true,_id:id})
+            this.getProductInfoById(id)
         }
     }
     render() {
@@ -29,10 +72,10 @@ class AddUpdate extends Component {
 					<Button onClick={()=>{this.props.history.goBack()}} type="link">
 						<ArrowLeftOutlined/>返回
 					</Button>	
-					<span>添加商品</span>
+            <span>{this.state.isUpdate?'修改商品':'新增商品'}</span>
 				</div>
 			}>
-                <Form 
+                <Form ref='form'
                     onFinish={this.onFinish}
                 >
                     <Item 
@@ -46,7 +89,7 @@ class AddUpdate extends Component {
                     <Item 
                         name='desc'
                         rules={[{required:true,message:'商品描述不能为空！'}]}
-                        label='商品名称'
+                        label='商品描述'
                         wrapperCol={{span:10}}
                     >
                         <Input placeholder='输入商品描述'/>
@@ -75,14 +118,14 @@ class AddUpdate extends Component {
                         label='商品图片'
                         wrapperCol={{span:10}}
                     >
-                        <PicturesWall/>
+                        <PicturesWall ref='pictureWall'/>
                     </Item>
                     <Item 
                         style={{marginLeft:'10px'}}
                         label='商品详情'
                         wrapperCol={{span:10}}
                     >
-                        富文本
+                        <RichText ref='richText'/>
                     </Item>
                     <Item>
                         <Button htmlType='submit' type="primary">提交</Button>

@@ -1,10 +1,201 @@
 import React, { Component } from 'react'
+import {Card,Table,Button, message,Modal,Form,Input,Select} from 'antd'
+import {PlusCircleOutlined} from '@ant-design/icons';
+import dayjs from 'dayjs'
+import {reqUserList,reqAddUser} from '../../ajax/index'
 
+const {Item} = Form
+const {Option} =Select
 export default class User extends Component {
+    state={
+        users:[],
+        roles:[]
+    }
+    showModal=()=>{
+        this.setState({visible:true})
+    }
+    handleOk=async()=>{
+        const userObj = this.refs.form.getFieldsValue()
+        let result = await reqAddUser(userObj)
+        let {status,msg} = result
+        if(status===0){
+            message.success('添加用户成功！')
+            this.getUserList()
+            this.refs.form.resetFields()
+        }else{
+            message.error(msg)
+        }
+        this.setState({visible:false})
+    }
+    handleCancel=()=>{
+        this.refs.form.resetFields()
+        this.setState({visible:false})
+    }
+    //获取角色名称
+    getRoleName=(id)=>{
+        let result = this.state.roles.find((roleObj)=>{
+            return  roleObj._id === id
+        })
+        if(result) {
+            return result.name
+        }
+    }
+
+    //请求用户列表
+    getUserList=async()=>{
+        let result = await reqUserList()
+        // console.log(result.data);//users和roles
+        let {status,data,msg} = result
+        if(status===0){
+            this.setState({users:data.users.reverse(),roles:data.roles})
+        }else{
+            message.error(msg)
+        }
+    }
+
+
+    componentDidMount(){
+        this.getUserList()
+    }
+    
     render() {
+        const columns = [
+			{
+				title: '用户名',
+				dataIndex: 'username',
+				key: 'username',
+			},
+			{
+				title: '邮箱',
+				dataIndex: 'email',
+				key: 'email',
+			},
+			{
+				title: '电话',
+				dataIndex: 'phone',
+				key: 'phone',
+			},
+			{
+				title: '注册时间',
+				dataIndex: 'create_time',
+				key: 'create_time',
+				render:(a)=>(dayjs(a).format('YYYY年 MM月 DD日 HH:mm:ss'))
+			},
+			{
+				title: '所属角色',
+				dataIndex: 'role_id',
+				key: 'role_id',
+				render:(id)=> this.getRoleName(id)
+			},
+			{
+				title: '操作',
+				//dataIndex: 'address',
+				align:'center',
+				key: 'opera',
+				render:()=> (
+					<div>
+						<Button type="link">修改</Button>
+						<Button type="link">删除</Button>
+					</div>
+				)
+			},
+		];
         return (
             <div>
-                user
+                <Card title={
+					<div>
+						<Button onClick={this.showModal} type="primary">
+							<PlusCircleOutlined />
+							创建用户
+						</Button>
+					</div>
+				}>
+					<Table 
+						rowKey="_id" 
+						bordered
+						dataSource={this.state.users} 
+						columns={columns} 
+					/>
+				</Card>
+                {/* 新增用户弹窗 */}
+				<Modal
+                    title="新增用户"
+                    visible={this.state.visible}
+                    onOk={this.handleOk}
+                    onCancel={this.handleCancel}
+                    okText="确定"
+                    cancelText="取消"
+                    >
+                                <Form ref="form">
+                                    <Item
+                                        name="username"
+                                        label="用户名"
+                                        labelCol={{span:4}}
+                                        labelAlign="right"
+                                        wrapperCol={{span:18}}
+                                        rules={[
+                                            {required: true, message: '用户名必须输入' },
+                                            {max:12,message:'用户名必须小于等于12位'},
+                                            {min:4,message:'用户名必须大于等于4位'},
+                                            {pattern:/^\w+$/,message:'用户名必须是字母、数字或下划线组成'}
+                                        ]}
+                                    >
+                                        <Input placeholder="请输入用户名"/>
+                                    </Item>
+                                    <Item
+                                        name="password"
+                                        label="密码"
+                                        labelCol={{span:4}}
+                                        labelAlign="right"
+                                        wrapperCol={{span:18}}
+                                        rules={[
+                                            {required: true, message: '密码必须输入' },
+                                            {max:12,message:'密码必须小于等于12位'},
+                                            {min:4,message:'密码必须大于等于4位'},
+                                            {pattern:/^\w+$/,message:'密码必须是字母、数字或下划线组成'}
+                                        ]}
+                                    >
+                                        <Input placeholder="请输入密码"/>
+                                    </Item>
+                                    <Item
+                                        name="phone"
+                                        label="手机号"
+                                        labelCol={{span:4}}
+                                        labelAlign="right"
+                                        wrapperCol={{span:18}}
+                                        rules={[{required: true, message: '手机号必须输入' }]}
+                                    >
+                                        <Input placeholder="请输入手机号"/>
+                                    </Item>
+                                    <Item
+                                        name="email"
+                                        label="邮箱"
+                                        labelCol={{span:4}}
+                                        labelAlign="right"
+                                        wrapperCol={{span:18}}
+                                        rules={[{required: true, message: '邮箱必须输入' }]}
+                                    >
+                                        <Input placeholder="请输入邮箱"/>
+                                    </Item>
+                                    <Item
+                                        name="role_id"
+                                        label="所属角色"
+                                        labelCol={{span:4}}
+                                        labelAlign="right"
+                                        wrapperCol={{span:18}}
+                                        rules={[{required: true, message: '必须选择一个角色' }]}
+                                    >
+                                        <Select defaultValue="">
+                                            <Option value="">请选择角色</Option>
+                                            {
+                                                this.state.roles.map((roleObj)=>{
+                                                return <Option key={roleObj._id} value={roleObj._id}>{roleObj.name}</Option>
+                                                })
+                                            }
+                                        </Select>
+                                    </Item>
+                                </Form>
+                </Modal>
             </div>
         )
     }

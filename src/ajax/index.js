@@ -2,6 +2,7 @@
 import myAxios from './myAxios'
 import jsonp from 'jsonp'
 import {message} from 'antd'
+import store from '../redux/store'
 import {WEATHER_URL,LOCATION,AK} from '../config/index'
 
 
@@ -14,7 +15,7 @@ export const reqWeather = ()=>{
                 // console.log(data)
                 resolve(data.results[0].weather_data[0])
             }else{
-                message.error(err)
+                message.error('请求天气信息出错，请联系管理员')
             }
         })
     })
@@ -33,4 +34,22 @@ export const reqSearchProduct=(searchType,keyWord,pageNum,pageSize)=>myAxios.get
 export const reqChangeProdStatus=(productId,status)=>myAxios.post('/manage/product/updateStatus',{productId,status})
 //根据商品id查询商品详细信息
 export const reqProductInfoById = (productId) => myAxios.get('/manage/product/info',{params:{productId}})
-
+//请求删除一个图片
+export const reqDeletePicture = (name) => myAxios.post('/manage/img/delete',{name})
+//请求添加一个商品
+export const reqAddProduct = (prodcuObj)=> myAxios.post('/manage/product/add',prodcuObj)
+//请求修改商品
+export const reqUpdateProduct = (prodcuObj)=>myAxios.post('/manage/product/update',prodcuObj)
+//请求获取角色列表
+export const reqRoleList = () => myAxios.get('/manage/role/list')
+//请求添加角色
+export const reqAddRole = ({roleName}) => myAxios.post('/manage/role/add',{roleName})
+//请求给某个角色授权
+export const reqAuthRole = (_id,menus)=>{
+	const {username} = store.getState().userInfo.user//获取admin
+	return myAxios.post('/manage/role/update',{_id,menus,auth_name:username,auth_time:Date.now()})
+}
+//请求用户列表
+export const reqUserList = () => myAxios.get('/manage/user/list')
+//请求添加用户
+export const reqAddUser = (userObj) => myAxios.post('/manage/user/add',userObj)
