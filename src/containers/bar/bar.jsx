@@ -18,7 +18,7 @@ export default class Pie extends Component {
                 data:['销量']
             },
             xAxis: {
-                data: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子']
+                data: ['华为荣耀20', '华为WATCH', '华为P30', '华为mate20', '索尼1000XM3', 'LV女包']
             },
             yAxis: {},
             series: [{
